@@ -1,0 +1,19 @@
+{
+  "name": "Palestra Musicale – Scale e Intervalli",
+  "short_name": "Palestra",
+  "description": "Esercizi di teoria musicale: scale maggiori e intervalli",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f5f4ef",
+  "theme_color": "#226a5a",
+  "lang": "it",
+  "icons": [
+    {
+      "src": "./icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}
