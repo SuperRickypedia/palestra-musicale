@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#f5f4ef">
-  <title>Palestra musicale — scale e intervalli</title>
+  <title>Palestra musicale v5 — scale e intervalli</title>
   <meta name="description" content="Allenati con scale maggiori e intervalli, in italiano o inglese. Funziona anche offline dopo il primo accesso.">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -54,7 +54,7 @@
     <div id="panel-scales" role="tabpanel" aria-labelledby="tab-scales"><div class="exercise-body"><h2>Completa la scala di <span class="tonic" id="scale-tonic">Do</span> maggiore</h2><p class="desc">Completa le 7 note fino all’ottava usando soltanto i pulsanti. Tocca una casella per modificarla.</p><div class="scale-line" id="scale-line" aria-label="Note della scala"><div class="preview-note"><strong>Gli esercizi non si sono avviati.</strong> Se stai visualizzando un file scaricato nell’app File su iPhone, questa è soltanto un’anteprima. Apri la versione pubblicata tramite link HTTPS direttamente in Chrome: lì le note e i pulsanti funzionano.</div></div><div class="keypad" id="keypad" aria-label="Pulsanti per inserire le note"></div><div class="feedback" id="scale-feedback" role="status" aria-live="polite"></div></div><div class="actions"><button type="button" class="primary" id="check-scale">Controlla risposta</button><button type="button" class="secondary" id="hint-scale">Un aiuto</button><span class="spacer"></span><button type="button" class="secondary new-btn" id="next-scale">Nuovo esercizio ↗</button></div></div>
     <div id="panel-intervals" role="tabpanel" aria-labelledby="tab-intervals" hidden><div class="exercise-body"><h2>Che intervallo è?</h2><p class="desc">Conta dalla prima nota alla seconda, <strong>salendo</strong>. Scegli numero e qualità dell'intervallo.</p><div class="interval-pair" aria-label="Note dell'intervallo"><div class="pitch" id="interval-start">Do<small>4</small></div><span class="arrow" aria-hidden="true">→</span><div class="pitch" id="interval-end">Mi<small>4</small></div></div><div class="answer-row"><div class="answer-col"><label for="interval-number">Numero</label><select id="interval-number"><option value="">Scegli…</option><option value="2">Seconda (2ª)</option><option value="3">Terza (3ª)</option><option value="4">Quarta (4ª)</option><option value="5">Quinta (5ª)</option><option value="6">Sesta (6ª)</option><option value="7">Settima (7ª)</option><option value="8">Ottava (8ª)</option></select></div><div class="answer-col"><label for="interval-quality">Qualità</label><select id="interval-quality"><option value="">Scegli…</option><option value="perfetta">Giusta</option><option value="maggiore">Maggiore</option><option value="minore">Minore</option><option value="aumentata">Aumentata</option><option value="diminuita">Diminuita</option></select></div></div><div class="feedback" id="interval-feedback" role="status" aria-live="polite"></div></div><div class="actions"><button type="button" class="primary" id="check-interval">Controlla risposta</button><button type="button" class="secondary" id="hint-interval">Un aiuto</button><span class="spacer"></span><button type="button" class="secondary new-btn" id="next-interval">Nuovo esercizio ↗</button></div></div>
   </section>
-  <div class="below"><div class="guide"><b>Livelli:</b> Base = 7 toniche naturali; Intermedia = + Si♭, Mi♭, Fa♯, Do♯; Avanzata = 15 tonalità. I pulsanti sono sempre mescolati e le toniche non si ripetono finché non hai completato il giro. Una scala usa ciascun nome di nota una sola volta. Nell'intervallo contano sia le lettere sia i semitoni: <span id="enharmonic-example">Fa♯ e Sol♭</span> non danno sempre lo stesso nome all'intervallo. I risultati sono salvati solo in questo browser.</div><button type="button" id="reset-stats" class="reset">Azzera statistiche</button></div>
+  <div class="below"><div class="guide"><b>Livelli:</b> Base = 7 toniche naturali; Intermedia = + Si♭, Mi♭, Fa♯, Do♯; Avanzata = 15 tonalità tradizionali + 6 teoriche, con doppi accidenti (♭♭ e ♯♯). I pulsanti sono sempre mescolati e le toniche non si ripetono finché non hai completato il giro. Una scala usa ciascun nome di nota una sola volta. Nell'intervallo contano sia le lettere sia i semitoni: <span id="enharmonic-example">Fa♯ e Sol♭</span> non danno sempre lo stesso nome all'intervallo. I risultati sono salvati solo in questo browser.</div><button type="button" id="reset-stats" class="reset">Azzera statistiche</button></div>
 </main>
 <script>
 (() => {
@@ -66,11 +66,13 @@ const MAJOR=[0,2,4,5,7,9,11,12];
 const ROOTS=[
   ['Do',0,0],['Sol',0,1],['Fa',0,1],['Re',0,2],['Sib',-1,2],
   ['La',0,3],['Mib',-1,3],['Mi',0,4],['Lab',-1,4],
-  ['Si',0,5],['Reb',-1,5],['Fa#',1,6],['Solb',-1,6],['Do#',1,7],['Dob',-1,7]
+  ['Si',0,5],['Reb',-1,5],['Fa#',1,6],['Solb',-1,6],['Do#',1,7],['Dob',-1,7],
+  // Sei tonalità teoriche, oltre alle 15 tradizionali, con possibili doppi accidenti.
+  ['Fab',-1,8],['Sol#',1,8],['Re#',1,9],['La#',1,10],['Mi#',1,11],['Si#',1,12]
 ];
 // Livelli costruiti sulle alterazioni della TONICA, non sull'armatura.
 // Base: tutte le 7 toniche naturali. Intermedia: + 2 bemolli e 2 diesis.
-// Avanzata: tutte le 15 tonalità tradizionali (fino a 7 alterazioni in armatura).
+// Avanzata: le 15 tonalità tradizionali + 6 teoriche con doppi accidenti.
 const NATURAL_ROOTS=['Do','Re','Mi','Fa','Sol','La','Si'];
 const INTERMEDIATE_ROOTS=[...NATURAL_ROOTS,'Sib','Mib','Fa#','Do#'];
 function rootsForLevel(which){
@@ -89,12 +91,16 @@ const NUMBER_NAMES={2:'seconda',3:'terza',4:'quarta',5:'quinta',6:'sesta',7:'set
 const QUALITY_NAMES={perfetta:'giusta',maggiore:'maggiore',minore:'minore',diminuita:'diminuita',aumentata:'aumentata'};
 const $=id=>document.getElementById(id);
 function mod(n,m){return ((n%m)+m)%m;}
-function noteText(letter,acc){return letter+(acc===1?'♯':acc===-1?'♭':acc===2?'𝄪':acc===-2?'𝄫':'');}
+// I simboli doppi sono mostrati come ♯♯ e ♭♭, leggibili anche su iPhone
+// senza dipendere dalla disponibilità dei glifi musicali Unicode 𝄪 / 𝄫.
+function noteText(letter,acc){return letter+(acc===1?'♯':acc===-1?'♭':acc===2?'♯♯':acc===-2?'♭♭':'');}
 function noteParse(s){
-  const m=String(s).trim().match(/^(do|re|mi|fa|sol|la|si)\s*(♯|#|♭|b|♮|n)?$/i);
+  const m=String(s).trim().match(/^(do|re|mi|fa|sol|la|si)\s*(𝄪|𝄫|♯♯|##|♭♭|bb|x|♯|#|♭|b|♮|n)?$/i);
   if(!m)return null;
-  let i=LETTERS.findIndex(x=>x.toLowerCase()===m[1].toLowerCase());
-  let acc= m[2]==='♯'||m[2]==='#'?1:m[2]==='♭'||m[2]==='b'?-1:0;
+  const i=LETTERS.findIndex(x=>x.toLowerCase()===m[1].toLowerCase());
+  const accidental=m[2]||'';
+  const offsets={'𝄪':2,'♯♯':2,'##':2,x:2,'𝄫':-2,'♭♭':-2,bb:-2,'♯':1,'#':1,'♭':-1,b:-1,'♮':0,n:0};
+  const acc=offsets[accidental.toLowerCase()]??0;
   return {i,acc,pitch:mod(NATURAL[i]+acc,12)};
 }
 function displayParsed(n){return noteText(notation==='en'?ENGLISH[n.i]:LETTERS[n.i],n.acc);}
@@ -114,12 +120,23 @@ function shuffledKeys(){
 function renderKeypad(){
   const pad=$('keypad');pad.replaceChildren();
   const label=document.createElement('div');label.className='keypad-label';
-  label.textContent='Pulsanti mescolati a ogni esercizio · Scegli una nota, poi ♯ o ♭ se serve';pad.append(label);
+  label.textContent=level==='advanced'
+    ?'Pulsanti mescolati · Dopo la nota puoi scegliere anche ♭♭ o ♯♯'
+    :'Pulsanti mescolati · Scegli una nota, poi ♯ o ♭ se serve';pad.append(label);
   for(const note of noteButtonOrder){
     const btn=document.createElement('button');btn.type='button';btn.className='note-key';btn.dataset.note=note;btn.textContent=displayNote(note);pad.append(btn);
   }
   const separator=document.createElement('span');separator.className='key-divider';separator.setAttribute('aria-hidden','true');pad.append(separator);
-  for(const [value,symbol,description] of [['-1','♭','Aggiungi bemolle alla nota appena inserita o selezionata'],['0','♮','Rimuovi alterazione dalla nota appena inserita o selezionata'],['1','♯','Aggiungi diesis alla nota appena inserita o selezionata']]){
+  const accidentals=[
+    ['-1','♭','Aggiungi bemolle alla nota appena inserita o selezionata'],
+    ['0','♮','Rimuovi alterazione dalla nota appena inserita o selezionata'],
+    ['1','♯','Aggiungi diesis alla nota appena inserita o selezionata']
+  ];
+  if(level==='advanced'){
+    accidentals.unshift(['-2','♭♭','Aggiungi doppio bemolle alla nota selezionata']);
+    accidentals.push(['2','♯♯','Aggiungi doppio diesis alla nota selezionata']);
+  }
+  for(const [value,symbol,description] of accidentals){
     const btn=document.createElement('button');btn.type='button';btn.className='acc-key';btn.dataset.acc=value;btn.textContent=symbol;btn.setAttribute('aria-label',description);pad.append(btn);
   }
   const erase=document.createElement('button');erase.type='button';erase.className='acc-key';erase.id='erase-key';erase.textContent='⌫';erase.setAttribute('aria-label','Cancella la nota selezionata o appena inserita');pad.append(erase);
@@ -166,12 +183,14 @@ function candidatesForIntervals(level){
     for(const n of ns){
       const qualities=level==='advanced' && n!==8?Object.keys(SEMITONES[n]):Object.keys(SEMITONES[n]).filter(x=>['minore','maggiore','perfetta'].includes(x));
       for(const q of qualities){
-        if(n===7 && q==='aumentata')continue;
-        if(n===2 && q==='diminuita')continue;
+        // Gli intervalli di seconda diminuita e settima aumentata
+        // sono teoricamente validi e possono comparire in Avanzato.
+        if(level!=='advanced' && n===7 && q==='aumentata')continue;
+        if(level!=='advanced' && n===2 && q==='diminuita')continue;
         const semitones=SEMITONES[n][q], raw=start.i+(n-1);
         const upperI=raw%7, upperOct=Math.floor(raw/7);
         const altered=(NATURAL[start.i]+start.acc+semitones)-(NATURAL[upperI]+upperOct*12);
-        if(Math.abs(altered)>1)continue;
+        if(Math.abs(altered)>(level==='advanced'?2:1))continue;
         pool.push({start:r,end:noteText(LETTERS[upperI],altered),startOct:4,endOct:4+upperOct,n,q,semitones});
       }
     }
@@ -275,7 +294,7 @@ function checkScale(){
   const inputs=Array.from({length:7},(_,i)=>slotInput(i));
   const answers=inputs.map(x=>noteParse(x.dataset.value||''));
   if(answers.some(x=>x===null)){
-    feedback('scale-feedback','info','Completa tutte le caselle','Tocca una casella e scegli la nota con i pulsanti qui sotto; aggiungi ♯ o ♭ se necessario.');return;
+    feedback('scale-feedback','info','Completa tutte le caselle','Tocca una casella e scegli la nota con i pulsanti qui sotto; aggiungi un’alterazione se necessario (anche ♭♭ o ♯♯ in Avanzato).');return;
   }
   let correct=0,enharmonic=0;
   answers.forEach((answer,i)=>{
