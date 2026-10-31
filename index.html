@@ -47,14 +47,14 @@
 <main class="wrap">
   <header><div class="brand"><span class="mark" aria-hidden="true">♫</span><span>PALESTRA MUSICALE<small>TEORIA • ALLENAMENTO</small></span></div><div class="offline"><span class="dot"></span> Funziona anche offline</div></header>
   <div class="intro"><div><div class="eyebrow">Un esercizio alla volta</div><h1>La teoria si impara <em>facendo.</em></h1><p class="sub">Completa scale maggiori, riconosci intervalli e controlla subito le risposte.</p></div><p class="tip"><strong>Il trucco?</strong> Pochi minuti di pratica, senza fretta.</p></div>
-  <div class="toolbar"><div class="tabs" role="tablist" aria-label="Tipo di esercizio"><button id="tab-scales" class="tab" role="tab" aria-selected="true" aria-controls="panel-scales">♫ &nbsp; Scale maggiori</button><button id="tab-intervals" class="tab" role="tab" aria-selected="false" aria-controls="panel-intervals">↗ &nbsp; Intervalli</button></div><div class="settings"><label class="levels" for="difficulty">Difficoltà <select id="difficulty"><option value="base">Base</option><option value="intermediate">Intermedia</option><option value="advanced">Completa</option></select></label><label class="levels" for="notation">Nomi note <select id="notation"><option value="it">Do Re Mi</option><option value="en">A B C</option></select></label></div></div>
+  <div class="toolbar"><div class="tabs" role="tablist" aria-label="Tipo di esercizio"><button id="tab-scales" class="tab" role="tab" aria-selected="true" aria-controls="panel-scales">♫ &nbsp; Scale maggiori</button><button id="tab-intervals" class="tab" role="tab" aria-selected="false" aria-controls="panel-intervals">↗ &nbsp; Intervalli</button></div><div class="settings"><label class="levels" for="difficulty">Difficoltà <select id="difficulty"><option value="base">Base</option><option value="intermediate">Intermedia</option><option value="advanced">Avanzata</option></select></label><label class="levels" for="notation">Nomi note <select id="notation"><option value="it">Do Re Mi</option><option value="en">A B C</option></select></label></div></div>
   <div class="stats" aria-label="Statistiche degli esercizi"><div class="stat"><div><div class="value" id="attempts">0</div><div class="caption">Esercizi svolti</div></div><span class="symbol" aria-hidden="true">▤</span></div><div class="stat"><div><div class="value" id="accuracy">—</div><div class="caption">Corretti al 1° tentativo</div></div><span class="symbol" aria-hidden="true">◎</span></div><div class="stat"><div><div class="value" id="streak">0</div><div class="caption">Consecutivi corretti</div></div><span class="symbol" aria-hidden="true">✦</span></div></div>
   <section class="exercise" aria-label="Esercizio">
     <div class="exercise-top"><span class="exercise-tag" id="exercise-type">Scala maggiore</span><span class="question-number" id="question-number">ESERCIZIO 01</span></div>
     <div id="panel-scales" role="tabpanel" aria-labelledby="tab-scales"><div class="exercise-body"><h2>Completa la scala di <span class="tonic" id="scale-tonic">Do</span> maggiore</h2><p class="desc">Completa le 7 note fino all’ottava usando soltanto i pulsanti. Tocca una casella per modificarla.</p><div class="scale-line" id="scale-line" aria-label="Note della scala"><div class="preview-note"><strong>Gli esercizi non si sono avviati.</strong> Se stai visualizzando un file scaricato nell’app File su iPhone, questa è soltanto un’anteprima. Apri la versione pubblicata tramite link HTTPS direttamente in Chrome: lì le note e i pulsanti funzionano.</div></div><div class="keypad" id="keypad" aria-label="Pulsanti per inserire le note"></div><div class="feedback" id="scale-feedback" role="status" aria-live="polite"></div></div><div class="actions"><button type="button" class="primary" id="check-scale">Controlla risposta</button><button type="button" class="secondary" id="hint-scale">Un aiuto</button><span class="spacer"></span><button type="button" class="secondary new-btn" id="next-scale">Nuovo esercizio ↗</button></div></div>
     <div id="panel-intervals" role="tabpanel" aria-labelledby="tab-intervals" hidden><div class="exercise-body"><h2>Che intervallo è?</h2><p class="desc">Conta dalla prima nota alla seconda, <strong>salendo</strong>. Scegli numero e qualità dell'intervallo.</p><div class="interval-pair" aria-label="Note dell'intervallo"><div class="pitch" id="interval-start">Do<small>4</small></div><span class="arrow" aria-hidden="true">→</span><div class="pitch" id="interval-end">Mi<small>4</small></div></div><div class="answer-row"><div class="answer-col"><label for="interval-number">Numero</label><select id="interval-number"><option value="">Scegli…</option><option value="2">Seconda (2ª)</option><option value="3">Terza (3ª)</option><option value="4">Quarta (4ª)</option><option value="5">Quinta (5ª)</option><option value="6">Sesta (6ª)</option><option value="7">Settima (7ª)</option><option value="8">Ottava (8ª)</option></select></div><div class="answer-col"><label for="interval-quality">Qualità</label><select id="interval-quality"><option value="">Scegli…</option><option value="perfetta">Giusta</option><option value="maggiore">Maggiore</option><option value="minore">Minore</option><option value="aumentata">Aumentata</option><option value="diminuita">Diminuita</option></select></div></div><div class="feedback" id="interval-feedback" role="status" aria-live="polite"></div></div><div class="actions"><button type="button" class="primary" id="check-interval">Controlla risposta</button><button type="button" class="secondary" id="hint-interval">Un aiuto</button><span class="spacer"></span><button type="button" class="secondary new-btn" id="next-interval">Nuovo esercizio ↗</button></div></div>
   </section>
-  <div class="below"><div class="guide"><b>Nota:</b> al livello Base i pulsanti sono ordinati; agli altri livelli cambiano ordine a ogni esercizio. Una scala usa ciascun nome di nota una sola volta. Nell'intervallo contano sia le lettere sia i semitoni: <span id="enharmonic-example">Fa♯ e Sol♭</span> non danno sempre lo stesso nome all'intervallo. I risultati sono salvati solo in questo browser.</div><button type="button" id="reset-stats" class="reset">Azzera statistiche</button></div>
+  <div class="below"><div class="guide"><b>Livelli:</b> Base = 7 toniche naturali; Intermedia = + Si♭, Mi♭, Fa♯, Do♯; Avanzata = 15 tonalità. I pulsanti sono sempre mescolati e le toniche non si ripetono finché non hai completato il giro. Una scala usa ciascun nome di nota una sola volta. Nell'intervallo contano sia le lettere sia i semitoni: <span id="enharmonic-example">Fa♯ e Sol♭</span> non danno sempre lo stesso nome all'intervallo. I risultati sono salvati solo in questo browser.</div><button type="button" id="reset-stats" class="reset">Azzera statistiche</button></div>
 </main>
 <script>
 (() => {
@@ -68,6 +68,14 @@ const ROOTS=[
   ['La',0,3],['Mib',-1,3],['Mi',0,4],['Lab',-1,4],
   ['Si',0,5],['Reb',-1,5],['Fa#',1,6],['Solb',-1,6],['Do#',1,7],['Dob',-1,7]
 ];
+// Livelli costruiti sulle alterazioni della TONICA, non sull'armatura.
+// Base: tutte le 7 toniche naturali. Intermedia: + 2 bemolli e 2 diesis.
+// Avanzata: tutte le 15 tonalità tradizionali (fino a 7 alterazioni in armatura).
+const NATURAL_ROOTS=['Do','Re','Mi','Fa','Sol','La','Si'];
+const INTERMEDIATE_ROOTS=[...NATURAL_ROOTS,'Sib','Mib','Fa#','Do#'];
+function rootsForLevel(which){
+  return which==='base'?NATURAL_ROOTS:which==='intermediate'?INTERMEDIATE_ROOTS:ROOTS.map(r=>r[0]);
+}
 const SEMITONES={
   2:{diminuita:0,minore:1,maggiore:2,aumentata:3},
   3:{diminuita:2,minore:3,maggiore:4,aumentata:5},
@@ -94,7 +102,7 @@ function displayNote(s){const n=typeof s==='string'?noteParse(s):s;return n?disp
 function getNotation(){try{return localStorage.getItem('palestra-notation')==='en'?'en':'it';}catch(e){return 'it';}}
 function setNotation(value){try{localStorage.setItem('palestra-notation',value);}catch(e){}}
 function shuffledKeys(){
-  if(level==='base')return notation==='en'?['La','Si','Do','Re','Mi','Fa','Sol']:LETTERS.slice();
+  // Pulsanti sempre mescolati, anche al livello Base. Evita l'ordine precedente.
   let result;
   const before=noteButtonOrder.join(',');
   do{
@@ -106,7 +114,7 @@ function shuffledKeys(){
 function renderKeypad(){
   const pad=$('keypad');pad.replaceChildren();
   const label=document.createElement('div');label.className='keypad-label';
-  label.textContent=level==='base'?'Pulsanti in ordine fisso · Scegli una nota, poi ♯ o ♭ se serve':'Pulsanti mescolati · Scegli una nota, poi ♯ o ♭ se serve';pad.append(label);
+  label.textContent='Pulsanti mescolati a ogni esercizio · Scegli una nota, poi ♯ o ♭ se serve';pad.append(label);
   for(const note of noteButtonOrder){
     const btn=document.createElement('button');btn.type='button';btn.className='note-key';btn.dataset.note=note;btn.textContent=displayNote(note);pad.append(btn);
   }
@@ -133,7 +141,6 @@ function renderNotation(){
       const slot=slotInput(i);if(slot){slot.textContent=slot.dataset.value?displayNote(slot.dataset.value):'?';updateSlotAccessibility(i);}
     }
   }
-  if(level==='base')noteButtonOrder=shuffledKeys();
   renderKeypad();renderIntervalPitches();
   if(scale && gradedScale)checkScale();
   if(interval && gradedInterval)checkInterval();
@@ -150,7 +157,8 @@ function deriveScale(root){
   });
 }
 function candidatesForIntervals(level){
-  const available=level==='base'?ROOTS.filter(x=>x[2]<=2):level==='intermediate'?ROOTS.filter(x=>x[2]<=4):ROOTS;
+  const allowed=new Set(rootsForLevel(level));
+  const available=ROOTS.filter(x=>allowed.has(x[0]));
   const ns=level==='base'?[2,3,4,5]:[2,3,4,5,6,7,8];
   const pool=[];
   for(const [r] of available){
@@ -173,11 +181,33 @@ function candidatesForIntervals(level){
 function fromStorage(){try{const obj=JSON.parse(localStorage.getItem('palestra-v1')||'{}');return {attempts:Math.max(0,Number(obj.attempts)||0),correct:Math.max(0,Number(obj.correct)||0),streak:Math.max(0,Number(obj.streak)||0)};}catch(e){return {attempts:0,correct:0,streak:0};}}
 let stats=fromStorage(),mode='scales',level='base',notation=getNotation(),questionNumber=0;
 let scale=null,interval=null,gradedScale=false,gradedInterval=false;
-let currentSlot=0,lastFilled=-1,lastScaleRoot='',lastIntervalKey='',noteButtonOrder=LETTERS.slice();
+let currentSlot=0,lastFilled=-1,lastScaleRoot=loadLastScaleRoot(),lastIntervalKey='',noteButtonOrder=LETTERS.slice();
+let scaleDeck=[],scaleDeckLevel='';
 function save(){try{localStorage.setItem('palestra-v1',JSON.stringify(stats));}catch(e){}renderStats();}
 function renderStats(){$('attempts').textContent=stats.attempts;$('accuracy').textContent=stats.attempts?Math.round(100*stats.correct/stats.attempts)+'%':'—';$('streak').textContent=stats.streak;}
 function record(ok){stats.attempts++;if(ok){stats.correct++;stats.streak++;}else{stats.streak=0;}save();}
 function choose(arr,avoid=''){const usable=arr.filter(x=>String(x)!==avoid);return (usable.length?usable:arr)[Math.floor(Math.random()*(usable.length?usable.length:arr.length))];}
+function loadLastScaleRoot(){try{return localStorage.getItem('palestra-last-scale-root')||'';}catch(e){return '';}}
+function saveLastScaleRoot(root){try{localStorage.setItem('palestra-last-scale-root',root);}catch(e){}}
+function shuffle(items){
+  const result=items.slice();
+  for(let i=result.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[result[i],result[j]]=[result[j],result[i]];}
+  return result;
+}
+function pickScaleRoot(){
+  // Un ordine nuovo e casuale ogni sessione / livello. Nessuna ripetizione nel giro.
+  if(scaleDeckLevel!==level || scaleDeck.length===0){
+    scaleDeck=shuffle(rootsForLevel(level));scaleDeckLevel=level;
+    // Evita anche di ripartire dalla stessa tonica appena vista al precedente accesso.
+    const last=scaleDeck.length-1;
+    if(last>0 && scaleDeck[last]===lastScaleRoot){
+      [scaleDeck[0],scaleDeck[last]]=[scaleDeck[last],scaleDeck[0]];
+    }
+  }
+  const picked=scaleDeck.pop();
+  lastScaleRoot=picked;saveLastScaleRoot(picked);
+  return picked;
+}
 function feedback(id,type,heading,msg,solution=''){
   const el=$(id);el.className='feedback show '+type;
   el.replaceChildren();
@@ -226,8 +256,7 @@ function createInputs(){
   selectSlot(0);
 }
 function newScale(){
-  const permitted=ROOTS.filter(x=>x[2]<=(level==='base'?2:level==='intermediate'?4:7));
-  const chosen=choose(permitted.map(x=>x[0]),lastScaleRoot);lastScaleRoot=chosen;
+  const chosen=pickScaleRoot();
   scale=deriveScale(chosen);currentSlot=0;lastFilled=-1;gradedScale=false;
   noteButtonOrder=shuffledKeys();
   $('scale-tonic').textContent=displayNote(scale[0]);createInputs();renderKeypad();clearFeedback('scale-feedback');updateCounter();
@@ -292,7 +321,7 @@ function enterMode(m){
 }
 $('tab-scales').addEventListener('click',()=>enterMode('scales'));
 $('tab-intervals').addEventListener('click',()=>enterMode('intervals'));
-$('difficulty').addEventListener('change',e=>{level=e.target.value;scale=null;interval=null;if(mode==='scales')newScale();else newInterval();});
+$('difficulty').addEventListener('change',e=>{level=e.target.value;scale=null;interval=null;scaleDeck=[];scaleDeckLevel='';if(mode==='scales')newScale();else newInterval();});
 $('next-scale').addEventListener('click',newScale);$('next-interval').addEventListener('click',newInterval);
 $('check-scale').addEventListener('click',checkScale);$('check-interval').addEventListener('click',checkInterval);
 $('hint-scale').addEventListener('click',()=>feedback('scale-feedback','info','Promemoria: T – T – S – T – T – T – S','T = tono (2 semitoni), S = semitono (1). Le coppie 3ª–4ª e 7ª–8ª distano un semitono. Ogni nome di nota compare una sola volta prima dell’ottava.'));
