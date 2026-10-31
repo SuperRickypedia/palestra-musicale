@@ -6,8 +6,9 @@ Web app leggera per esercitarsi con la teoria musicale, utilizzabile da smartpho
 - Completa le scale maggiori scegliendo le note dai pulsanti (niente tastiera virtuale).
 - Riconosci gli intervalli fra due note.
 - Scegli i nomi italiani (**Do Re Mi**) o internazionali (**C D E**).
-- Tre difficoltà per le scale: Base (7 toniche naturali), Intermedia (le 7 + Si♭, Mi♭, Fa♯, Do♯), Avanzata (tutte le 15 tonalità maggiori tradizionali).
+- Tre difficoltà per le scale: Base (7 toniche naturali), Intermedia (le 7 + Si♭, Mi♭, Fa♯, Do♯), Avanzata (15 tonalità tradizionali + 6 tonalità teoriche).
 - Pulsanti delle note mescolati a ogni esercizio, in tutti i livelli; domande in ordine casuale senza ripetizioni fino al completamento delle tonalità del livello.
+- Alterazioni ♭, ♯, ♭♭, ♯♯ in Avanzato, anche in intervalli e tonalità teoriche (es. Sol♯ maggiore, Fa♭ maggiore).
 - Correzione anche della scrittura enarmonica, suggerimenti e statistiche salvate nel browser.
 
 ## Avvio
