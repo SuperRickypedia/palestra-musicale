@@ -27,3 +27,18 @@ https://superrickypedia.github.io/palestra-musicale/
 - `manifest.webmanifest` — dati della web app
 - `sw.js` — supporto alla cache offline quando pubblicato su HTTPS
 - `icon.svg` — icona
+
+## Scale minori (ramo di sviluppo `feature/scale-minori`)
+
+La nuova modalità **Minori · percorso completo (3)** guida un blocco di esercizi su un'unica tonica:
+
+1. Identificare la **relativa maggiore** (stessa armatura, terza minore sopra la tonica minore).
+2. Completare la minore **naturale**.
+3. Passare alla **armonica**, alzando la settima rispetto alla naturale.
+4. Passare alla **melodica classica**: alzare sesta e settima in salita e usare la naturale in discesa.
+
+Nella minore naturale, rispetto alla **maggiore parallela** (stessa tonica), terza, sesta e settima sono abbassate di un semitono. La relativa maggiore non va confusa con la parallela.
+
+Le tre forme possono anche essere esercitate separatamente. La selezione delle toniche e le alterazioni doppie restano supportate. Gli esercizi sono completamente interattivi e senza tastiera virtuale.
+
+**Nota:** questi cambiamenti sono nel ramo di sviluppo, non ancora pubblicati sul sito.
