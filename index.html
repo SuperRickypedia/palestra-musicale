@@ -164,7 +164,7 @@ function initCustomPanel(){
 function updateCustomSelection(roots){
   customRoots=ALL_ROOTS.filter(root=>roots.includes(root));
   saveCustomRoots();renderCustomPanel();
-  scaleDeck=[];scaleDeckLevel='';scale=null;interval=null;
+  scaleDeck=[];scaleDeckLevel='';scale=null;interval=null;minorStage=-1;blockRoot='';
   if(level==='custom'){
     if(mode==='scales')newScale();else newInterval();
   }
@@ -253,6 +253,7 @@ function renderNotation(){
     }
   }
   for(const btn of $('relative-choices').querySelectorAll('[data-relative]'))btn.textContent=displayNote(btn.dataset.relative)+' maggiore';
+  if(relativeGate&&scale)$('relative-question').textContent='Da quale scala maggiore deriva '+displayNote(scale[0])+' minore (stessa armatura)?';
   renderCustomPanel();renderKeypad();renderIntervalPitches();
   if(scale && gradedScale)checkScale();
   if(interval && gradedInterval)checkInterval();
@@ -418,10 +419,16 @@ function createInputs(){
   selectSlot(0);
 }
 function newScale(){
-  const chosen=pickScaleRoot();
+  let chosen;
+  if(scaleKind==='minor-cycle'){
+    if(minorStage<0||minorStage===2||!blockRoot){blockRoot=pickScaleRoot();minorStage=0;}
+    else{minorStage++;}
+    chosen=blockRoot;
+  }else{chosen=pickScaleRoot();minorStage=-1;blockRoot='';}
   if(!chosen){
     scale=null;gradedScale=false;
     $('scale-tonic').textContent='…';$('scale-line').replaceChildren();$('keypad').replaceChildren();
+    $('scale-work').hidden=false;$('relative-panel').hidden=true;
     const msg=document.createElement('div');msg.className='preview-note';
     msg.textContent='Scegli almeno una tonalità nel pannello «Le tue scale» per iniziare.';
     $('scale-line').append(msg);
@@ -430,8 +437,10 @@ function newScale(){
   }
   $('check-scale').disabled=false;$('hint-scale').disabled=false;$('next-scale').disabled=false;
   scale=deriveScale(chosen);currentSlot=0;lastFilled=-1;gradedScale=false;
-  noteButtonOrder=shuffledKeys();
-  $('scale-tonic').textContent=displayNote(scale[0]);createInputs();renderKeypad();clearFeedback('scale-feedback');updateCounter();
+  noteButtonOrder=shuffledKeys();renderScaleHeading();
+  $('scale-tonic').textContent=displayNote(scale[0]);createInputs();renderKeypad();
+  clearFeedback('scale-feedback');updateCounter();refreshRelativeQuestion();
+  $('next-scale').textContent=scaleKind==='minor-cycle'&&minorStage<2?'Prossima forma minore →':'Nuovo esercizio ↗';
 }
 function newInterval(){
   const pool=candidatesForIntervals(level);
@@ -451,28 +460,27 @@ function newInterval(){
   clearFeedback('interval-feedback');updateCounter();
 }
 function checkScale(){
-  const inputs=Array.from({length:7},(_,i)=>slotInput(i));
+  if(relativeGate)return;
+  const expected=answerNotes();
+  const inputs=Array.from({length:answerCount()},(_,i)=>slotInput(i));
   const answers=inputs.map(x=>noteParse(x.dataset.value||''));
   if(answers.some(x=>x===null)){
-    feedback('scale-feedback','info','Completa tutte le caselle','Tocca una casella e scegli la nota con i pulsanti qui sotto; aggiungi un’alterazione se necessario (anche ♭♭ o ♯♯ in Esperto e Personalizzato).');return;
+    feedback('scale-feedback','info','Completa tutte le caselle','Tocca una casella e scegli la nota dai pulsanti; aggiungi alterazioni se necessario.');return;
   }
   let correct=0,enharmonic=0;
   answers.forEach((answer,i)=>{
-    const wanted=scale[i+1],good=answer.i===wanted.i&&answer.acc===wanted.acc;
+    const wanted=expected[i],good=answer.i===wanted.i&&answer.acc===wanted.acc;
     const slot=inputs[i].parentElement;
     inputs[i].classList.toggle('correct',good);inputs[i].classList.toggle('wrong',!good);
     const extra=slot.querySelector('.expected');extra.className='expected';extra.textContent='';
     if(good)correct++;
-    else{
-      const samePitch=answer.pitch===wanted.pitch;
-      if(samePitch){enharmonic++;extra.classList.add('enharmonic');extra.textContent='Scrivi '+displayNote(wanted);}
-      else extra.textContent='→ '+displayNote(wanted);
-    }
+    else if(answer.pitch===wanted.pitch){enharmonic++;extra.classList.add('enharmonic');extra.textContent='Scrivi '+displayNote(wanted);}
+    else extra.textContent='→ '+displayNote(wanted);
   });
-  const ok=correct===7;
+  const ok=correct===expected.length;
   if(!gradedScale){record(ok);gradedScale=true;}
-  if(ok)feedback('scale-feedback','success','Perfetto! Scala corretta.','Hai rispettato tutti i nomi delle note e le alterazioni. Ottimo lavoro!');
-  else feedback('scale-feedback','error',`${correct} note su 7 corrette`,enharmonic?'Almeno una risposta ha il suono giusto, ma il nome scritto non è quello richiesto dalla scala. Ogni grado deve avere un nome diverso.':'Rivedi le caselle evidenziate. Ricorda lo schema: tono – tono – semitono – tono – tono – tono – semitono.', 'Soluzione: '+scale.map(displayNote).join(' · '));
+  if(ok)feedback('scale-feedback','success','Perfetto! Scala corretta.','Hai rispettato i nomi delle note e le alterazioni. Ottimo lavoro!');
+  else feedback('scale-feedback','error',correct+' note su '+expected.length+' corrette',enharmonic?'Almeno una risposta ha il suono giusto, ma il nome scritto non è quello richiesto.':'Rivedi le caselle evidenziate: verifica le alterazioni della forma scelta.',scaleSolution());
 }
 function checkInterval(){
   const n=Number($('interval-number').value),q=$('interval-quality').value;
@@ -495,13 +503,13 @@ function enterMode(m){
   $('tab-scales').setAttribute('aria-selected',String(m==='scales'));
   $('tab-intervals').setAttribute('aria-selected',String(m==='intervals'));
   $('panel-scales').hidden=m!=='scales';$('panel-intervals').hidden=m!=='intervals';
-  $('exercise-type').textContent=m==='scales'?'Scala maggiore':'Riconosci l’intervallo';
+  $('exercise-type').textContent=m==='scales'?'Scala '+SCALE_LABELS[activePatternKind()]:'Riconosci l’intervallo';
   if(m==='scales'){if(!scale)newScale();}else{if(!interval)newInterval();}
 }
 $('tab-scales').addEventListener('click',()=>enterMode('scales'));
 $('tab-intervals').addEventListener('click',()=>enterMode('intervals'));
 $('difficulty').addEventListener('change',e=>{
-  level=e.target.value;scale=null;interval=null;scaleDeck=[];scaleDeckLevel='';
+  level=e.target.value;scale=null;interval=null;scaleDeck=[];scaleDeckLevel='';minorStage=-1;blockRoot='';
   renderCustomPanel();
   if(mode==='scales')newScale();else newInterval();
 });
@@ -514,12 +522,20 @@ $('custom-groups').addEventListener('change',e=>{
 $('custom-panel').addEventListener('click',e=>{
   const button=e.target.closest('button[data-preset]');if(!button)return;
   const preset=button.dataset.preset;
-  const roots=preset==='natural'?NATURAL_ROOTS:preset==='traditional'?TRADITIONAL_ROOTS:preset==='theoretical'?THEORETICAL_ROOTS:preset==='all'?ALL_ROOTS:[];
+  const roots=preset==='natural'?NATURAL_ROOTS:preset==='traditional'?activeTraditionalRoots():preset==='theoretical'?activeTheoreticalRoots():preset==='all'?ALL_ROOTS:[];
   updateCustomSelection(roots);
+});
+$('scale-kind').addEventListener('change',e=>{
+  if(e.target.value!=='minor-cycle'&&!SCALE_PATTERNS[e.target.value])return;
+  scaleKind=e.target.value;saveScaleKind();minorStage=-1;blockRoot='';scale=null;scaleDeck=[];scaleDeckLevel='';
+  initCustomPanel();newScale();
 });
 $('next-scale').addEventListener('click',newScale);$('next-interval').addEventListener('click',newInterval);
 $('check-scale').addEventListener('click',checkScale);$('check-interval').addEventListener('click',checkInterval);
-$('hint-scale').addEventListener('click',()=>feedback('scale-feedback','info','Promemoria: T – T – S – T – T – T – S','T = tono (2 semitoni), S = semitono (1). Le coppie 3ª–4ª e 7ª–8ª distano un semitono. Ogni nome di nota compare una sola volta prima dell’ottava.'));
+$('hint-scale').addEventListener('click',()=>{
+  const messages={major:['T – T – S | T | T – T – S','Schema della scala maggiore; semitoni tra 3ª–4ª e 7ª–8ª.'],natural:['Minore naturale: T – S – T – T – S – T – T','Parti dalle note della relativa maggiore, iniziando dalla sua sesta nota; rispetto alla maggiore parallela, 3ª, 6ª e 7ª sono abbassate.'],harmonic:['Minore armonica: alza la 7ª','Rispetto alla minore naturale, alza soltanto la settima di un semitono.'],melodic:['Minore melodica: alza 6ª e 7ª in salita','Rispetto alla naturale, in salita alza sesta e settima di un semitono; in discesa torna alla minore naturale.']};
+  const [head,message]=messages[activePatternKind()];feedback('scale-feedback','info',head,message);
+});
 $('hint-interval').addEventListener('click',()=>feedback('interval-feedback','info','Prima il numero, poi la qualità','Conta i nomi delle note compresi fra inizio e fine, inclusi entrambi. Poi considera i semitoni: 2ª (1/2), 3ª (3/4), 4ª giusta (5), 5ª giusta (7), 6ª (8/9), 7ª (10/11), 8ª giusta (12).'));
 $('notation').addEventListener('change',e=>{
   notation=e.target.value==='en'?'en':'it';setNotation(notation);renderNotation();
@@ -530,7 +546,7 @@ $('keypad').addEventListener('click',e=>{
     const i=currentSlot;
     setSlot(i,btn.dataset.note);lastFilled=i;
     // Procede alla casella seguente senza aprire una tastiera virtuale.
-    selectSlot(Math.min(6,i+1));
+    selectSlot(Math.min(answerCount()-1,i+1));
   } else if('acc' in btn.dataset){
     const i=lastFilled>=0?lastFilled:currentSlot;
     const field=slotInput(i),parsed=noteParse(field.dataset.value||'');
@@ -543,7 +559,7 @@ $('keypad').addEventListener('click',e=>{
 $('reset-stats').addEventListener('click',()=>{
   if(confirm('Vuoi davvero azzerare le statistiche?')){stats={attempts:0,correct:0,streak:0};save();}
 });
-initCustomPanel();renderStats();$('notation').value=notation;newScale();$('enharmonic-example').textContent=displayNote('Fa♯')+' e '+displayNote('Sol♭');
+initCustomPanel();renderStats();$('notation').value=notation;$('scale-kind').value=scaleKind;newScale();$('enharmonic-example').textContent=displayNote('Fa♯')+' e '+displayNote('Sol♭');
 })();
 </script>
 <script>
