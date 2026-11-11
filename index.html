@@ -285,6 +285,7 @@ function refreshRelativeQuestion(){
   $('keypad').hidden=relativeGate;
   $('check-scale').disabled=relativeGate;
   $('hint-scale').disabled=relativeGate;
+  $('next-scale').disabled=relativeGate;
   $('relative-feedback').textContent='';
   $('relative-question').textContent='Da quale scala maggiore deriva '+displayNote(scale[0])+' minore (stessa armatura)?';
   const choices=$('relative-choices');choices.replaceChildren();
@@ -299,7 +300,7 @@ function refreshRelativeQuestion(){
       if(note!==answer){$('relative-feedback').textContent='Non ancora: ricorda che la relativa maggiore si trova una terza minore sopra la tonica minore. Riprova.';return;}
       relativeGate=false;$('relative-feedback').textContent='Esatto! '+displayNote(answer)+' maggiore ha la stessa armatura. Ora costruisci la scala minore.';
       $('relative-choices').replaceChildren();$('scale-work').hidden=false;$('keypad').hidden=false;
-      $('check-scale').disabled=false;$('hint-scale').disabled=false;
+      $('check-scale').disabled=false;$('hint-scale').disabled=false;$('next-scale').disabled=false;
     });
     choices.append(btn);
   }
