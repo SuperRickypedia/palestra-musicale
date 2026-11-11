@@ -247,25 +247,61 @@ function renderNotation(){
   $('enharmonic-example').textContent=displayNote('Fa♯')+' e '+displayNote('Sol♭');
   if(scale){
     $('scale-tonic').textContent=displayNote(scale[0]);
-    const root=document.querySelector('.root-note');if(root)root.textContent=displayNote(scale[0]);
-    for(let i=0;i<7;i++){
+    for(const root of document.querySelectorAll('.root-note'))root.textContent=displayNote(scale[0]);
+    for(let i=0;i<answerCount();i++){
       const slot=slotInput(i);if(slot){slot.textContent=slot.dataset.value?displayNote(slot.dataset.value):'?';updateSlotAccessibility(i);}
     }
   }
+  for(const btn of $('relative-choices').querySelectorAll('[data-relative]'))btn.textContent=displayNote(btn.dataset.relative)+' maggiore';
   renderCustomPanel();renderKeypad();renderIntervalPitches();
   if(scale && gradedScale)checkScale();
   if(interval && gradedInterval)checkInterval();
 }
 
-function deriveScale(root){
+function deriveScale(root,kind=activePatternKind()){
   const parsed=noteParse(root);
   if(!parsed)throw Error('Tonica non valida');
-  return MAJOR.map((semitones,d)=>{
-    const i=(parsed.i+d)%7, oct=Math.floor((parsed.i+d)/7);
+  const make=(semitones,d)=>{
+    const i=(parsed.i+d)%7,oct=Math.floor((parsed.i+d)/7);
     const acc=(NATURAL[parsed.i]+parsed.acc+semitones)-(NATURAL[i]+oct*12);
-    if(Math.abs(acc)>2)throw Error('Alterazione inattesa');
+    if(Math.abs(acc)>2)throw Error('Alterazione inattesa per '+root+' '+kind);
     return {i,acc,pitch:mod(NATURAL[i]+acc,12),text:noteText(LETTERS[i],acc)};
-  });
+  };
+  const ascent=SCALE_PATTERNS[kind].map(make);
+  return kind==='melodic'?ascent.concat(SCALE_PATTERNS.natural.map(make).reverse()):ascent;
+}
+function answerCount(){return activePatternKind()==='melodic'?14:7;}
+function answerNotes(){return activePatternKind()==='melodic'?scale.slice(1,8).concat(scale.slice(9)):scale.slice(1,8);}
+function scaleSolution(){
+  if(activePatternKind()!=='melodic')return 'Soluzione: '+scale.map(displayNote).join(' · ');
+  return 'Salita: '+scale.slice(0,8).map(displayNote).join(' · ')+' | Discesa: '+scale.slice(8).map(displayNote).join(' · ');
+}
+function relativeMajor(root){return deriveScale(root,'natural')[2].text;}
+function refreshRelativeQuestion(){
+  relativeGate=isMinorScale() && (scaleKind!=='minor-cycle'||minorStage===0);
+  $('relative-panel').hidden=!relativeGate;
+  $('scale-work').hidden=relativeGate;
+  $('keypad').hidden=relativeGate;
+  $('check-scale').disabled=relativeGate;
+  $('hint-scale').disabled=relativeGate;
+  $('relative-feedback').textContent='';
+  $('relative-question').textContent='Da quale scala maggiore deriva '+displayNote(scale[0])+' minore (stessa armatura)?';
+  const choices=$('relative-choices');choices.replaceChildren();
+  if(!relativeGate)return;
+  const answer=relativeMajor(scale[0].text),options=new Set([answer]);
+  const candidates=shuffle(ALL_ROOTS.map(relativeMajor).filter(x=>x!==answer));
+  for(const candidate of candidates){if(options.size>=4)break;options.add(candidate);}
+  for(const note of shuffle([...options])){
+    const btn=document.createElement('button');btn.type='button';btn.className='relative-choice';
+    btn.dataset.relative=note;btn.textContent=displayNote(note)+' maggiore';
+    btn.addEventListener('click',()=>{
+      if(note!==answer){$('relative-feedback').textContent='Non ancora: ricorda che la relativa maggiore si trova una terza minore sopra la tonica minore. Riprova.';return;}
+      relativeGate=false;$('relative-feedback').textContent='Esatto! '+displayNote(answer)+' maggiore ha la stessa armatura. Ora costruisci la scala minore.';
+      $('relative-choices').replaceChildren();$('scale-work').hidden=false;$('keypad').hidden=false;
+      $('check-scale').disabled=false;$('hint-scale').disabled=false;
+    });
+    choices.append(btn);
+  }
 }
 function candidatesForIntervals(level){
   const allowed=new Set(rootsForLevel(level));
@@ -334,12 +370,13 @@ function slotInput(i){return document.querySelector(`.note-input[data-index="${i
 function updateSlotAccessibility(i){
   const btn=slotInput(i);if(!btn)return;
   const name=btn.dataset.value?displayNote(btn.dataset.value):'vuota';
-  btn.setAttribute('aria-label',`${i===6?'Nota dell’ottava':(i+2)+'ª nota'}: ${name}. Tocca per selezionare`);
+  const pos=activePatternKind()==='melodic'?(i<7?(i===6?'Ottava in salita':(i+2)+'ª nota in salita'):(i===13?'Tonica in discesa':(14-i)+'ª nota in discesa')):(i===6?'Nota dell’ottava':(i+2)+'ª nota');
+  btn.setAttribute('aria-label',pos+': '+name+'. Tocca per selezionare');
 }
 function selectSlot(i,manual=false){
   currentSlot=i;
   if(manual)lastFilled=slotInput(i).dataset.value?i:-1;
-  for(let k=0;k<7;k++){
+  for(let k=0;k<answerCount();k++){
     const item=slotInput(k);const selected=k===currentSlot;
     item.classList.toggle('selected',selected);item.setAttribute('aria-pressed',String(selected));
   }
@@ -352,20 +389,32 @@ function setSlot(i,value){
   updateSlotAccessibility(i);
 }
 function createInputs(){
-  $('scale-line').replaceChildren();
-  for(let i=0;i<8;i++){
-    const slot=document.createElement('div');slot.className='slot';
-    const tag=document.createElement('span');tag.className='degree';tag.textContent=i===0?'Tonica':i===7?'Ottava':(i+1)+'ª nota';slot.append(tag);
-    if(i===0){const fixed=document.createElement('div');fixed.className='root-note';fixed.textContent=displayNote(scale[0]);slot.append(fixed);}
-    else{
-      const btn=document.createElement('button');btn.type='button';btn.className='note-input empty';btn.textContent='?';btn.dataset.index=String(i-1);btn.dataset.value='';
-      btn.addEventListener('click',()=>selectSlot(i-1,true));
-      slot.append(btn);
-      const expected=document.createElement('div');expected.className='expected';slot.append(expected);
+  const host=$('scale-line');host.replaceChildren();
+  const melodic=activePatternKind()==='melodic';
+  const parts=melodic?[['Salita',scale.slice(0,8)],['Discesa',scale.slice(8,16)]]:[['',scale]];
+  let position=0;
+  for(const [direction,notes] of parts){
+    const section=document.createElement('section');section.className='scale-section';
+    if(direction){const title=document.createElement('div');title.className='scale-direction';title.textContent=direction;section.append(title);}
+    const line=document.createElement('div');line.className='scale-line';
+    for(let i=0;i<notes.length;i++){
+      const slot=document.createElement('div');slot.className='slot';
+      const tag=document.createElement('span');tag.className='degree';
+      tag.textContent=i===0?(direction==='Discesa'?'Ottava':'Tonica'):i===7?(direction==='Discesa'?'Tonica':'Ottava'):(direction==='Discesa'?(8-i)+'ª nota':(i+1)+'ª nota');
+      slot.append(tag);
+      if(i===0){
+        const fixed=document.createElement('div');fixed.className='root-note';fixed.textContent=displayNote(notes[0]);slot.append(fixed);
+      }else{
+        const idx=position++;
+        const btn=document.createElement('button');btn.type='button';btn.className='note-input empty';btn.textContent='?';
+        btn.dataset.index=String(idx);btn.dataset.value='';btn.addEventListener('click',()=>selectSlot(idx,true));
+        slot.append(btn);const expected=document.createElement('div');expected.className='expected';slot.append(expected);
+      }
+      line.append(slot);
     }
-    $('scale-line').append(slot);
+    section.append(line);host.append(section);
   }
-  for(let i=0;i<7;i++)updateSlotAccessibility(i);
+  for(let i=0;i<answerCount();i++)updateSlotAccessibility(i);
   selectSlot(0);
 }
 function newScale(){
