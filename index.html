@@ -60,14 +60,21 @@
     .noscript-note{max-width:1050px;margin:0 auto 20px;padding:14px 18px;border:1px solid #e5be78;border-radius:14px;background:#fff7e8;color:#67491d;font-size:14px;line-height:1.5}
     @media(max-width:700px){.levels select,.answer-col select{font-size:16px}.exercise{border-radius:18px}.wrap{padding-top:max(16px,env(safe-area-inset-top,0px))}.offline{font-size:11px}.brand{font-size:12px}.brand .mark{flex:none}}
     @media(max-width:370px){.settings{grid-template-columns:1fr;gap:8px}.levels{justify-content:space-between}.note-key,.acc-key{min-width:40px}.scale-line{gap:7px}}
-  </style>
+  
+    .ear-settings{display:flex;gap:12px;flex-wrap:wrap;margin:20px 0}.ear-settings label{display:flex;flex-direction:column;gap:8px;min-width:190px;flex:1;font-size:13px;color:var(--muted);font-weight:800}
+    .ear-settings select{height:48px;border:1px solid var(--line);border-radius:11px;background:white;color:var(--ink);font-size:16px;padding:8px 12px;font-weight:800}
+    .ear-listen{display:flex;flex-direction:column;gap:14px;align-items:center;background:#f2f7ef;border:1px solid var(--line);border-radius:17px;padding:25px 13px;margin:15px 0 26px;text-align:center}
+    .ear-status{font-size:14px;color:var(--muted);line-height:1.5;max-width:440px}
+    .ear-play-row{display:flex;justify-content:center;flex-wrap:wrap;gap:10px}.ear-play-row button{min-height:48px;min-width:130px}
+    .ear-disclaimer{font-size:12px;line-height:1.5;color:var(--muted);margin:14px 0 0}
+</style>
 </head>
 <body>
 <noscript><div class="noscript-note"><strong>Questa è soltanto un’anteprima statica.</strong> Per usare gli esercizi, apri il sito da un link HTTPS in Chrome o Safari. L’anteprima dei file su iPhone può non eseguire JavaScript.</div></noscript>
 <main class="wrap">
   <header><div class="brand"><span class="mark" aria-hidden="true">♫</span><span>PALESTRA MUSICALE<small>TEORIA • ALLENAMENTO</small></span></div><div class="offline"><span class="dot"></span> Funziona anche offline</div></header>
   <div class="intro"><div><div class="eyebrow">Un esercizio alla volta</div><h1>La teoria si impara <em>facendo.</em></h1><p class="sub">Completa scale maggiori e minori, riconosci intervalli e controlla subito le risposte.</p></div><p class="tip"><strong>Il trucco?</strong> Pochi minuti di pratica, senza fretta.</p></div>
-  <div class="toolbar"><div class="tabs" role="tablist" aria-label="Tipo di esercizio"><button id="tab-scales" class="tab" role="tab" aria-selected="true" aria-controls="panel-scales">♫ &nbsp; Scale</button><button id="tab-intervals" class="tab" role="tab" aria-selected="false" aria-controls="panel-intervals">↗ &nbsp; Intervalli</button></div><div class="settings"><label class="levels" for="difficulty">Difficoltà <select id="difficulty"><option value="base">Base</option><option value="intermediate">Intermedia</option><option value="advanced">Avanzata</option><option value="expert">Esperto</option><option value="custom">Personalizzato</option></select></label><label class="levels" for="notation">Nomi note <select id="notation"><option value="it">Do Re Mi</option><option value="en">A B C</option></select></label></div></div>
+  <div class="toolbar"><div class="tabs" role="tablist" aria-label="Tipo di esercizio"><button id="tab-scales" class="tab" role="tab" aria-selected="true" aria-controls="panel-scales">♫ &nbsp; Scale</button><button id="tab-intervals" class="tab" role="tab" aria-selected="false" aria-controls="panel-intervals">↗ &nbsp; Intervalli</button><button id="tab-ear" class="tab" role="tab" aria-selected="false" aria-controls="panel-ear">🎧 &nbsp; Ascolto</button></div><div class="settings"><label class="levels" for="difficulty">Difficoltà <select id="difficulty"><option value="base">Base</option><option value="intermediate">Intermedia</option><option value="advanced">Avanzata</option><option value="expert">Esperto</option><option value="custom">Personalizzato</option></select></label><label class="levels" for="notation">Nomi note <select id="notation"><option value="it">Do Re Mi</option><option value="en">A B C</option></select></label></div></div>
   <section id="custom-panel" class="custom-panel" aria-label="Scegli le tonalità da esercitare" hidden>
     <div class="custom-head"><div><h2>Le tue scale</h2><p>Seleziona solo quelle che vuoi ripassare. Verranno proposte in ordine casuale, senza ripetizioni finché non finisce il giro. La scelta resta su questo dispositivo.</p></div><span id="custom-count" class="custom-count" aria-live="polite">7 su 21</span></div>
     <div class="preset-row" aria-label="Selezione rapida"><button type="button" class="preset" data-preset="natural">Solo naturali</button><button type="button" class="preset" data-preset="traditional">15 tradizionali</button><button type="button" class="preset" data-preset="theoretical">Solo teoriche</button><button type="button" class="preset" data-preset="all">Tutte</button><button type="button" class="preset" data-preset="none">Deseleziona</button></div>
@@ -79,6 +86,32 @@
     <div class="exercise-top"><span class="exercise-tag" id="exercise-type">Scala maggiore</span><span class="question-number" id="question-number">ESERCIZIO 01</span></div>
     <div id="panel-scales" role="tabpanel" aria-labelledby="tab-scales"><div class="exercise-body"><div class="scale-kind-control"><label for="scale-kind">Tipo di scala</label><select id="scale-kind"><option value="major">Maggiore</option><option value="minor-cycle">Minori · percorso completo (3)</option><option value="natural">Minore naturale</option><option value="harmonic">Minore armonica</option><option value="melodic">Minore melodica</option></select></div><div class="minor-progress" id="minor-progress" hidden></div><h2>Completa la scala di <span class="tonic" id="scale-tonic">Do</span> <span id="scale-kind-name">maggiore</span></h2><p class="desc" id="scale-desc">Completa le 7 note fino all’ottava usando soltanto i pulsanti. Tocca una casella per modificarla.</p><div id="relative-panel" class="relative-panel" hidden><h3>Prima: la relativa maggiore</h3><p id="relative-question">Quale maggiore ha la stessa armatura?</p><div id="relative-answer" class="relative-selected" aria-label="Nota scelta per la relativa maggiore" aria-live="polite">?</div><div id="relative-feedback" class="relative-feedback" role="status" aria-live="polite"></div></div><div id="scale-work" class="scale-rows"><div id="scale-line" aria-label="Note della scala"><div class="preview-note"><strong>Gli esercizi non si sono avviati.</strong> Se stai visualizzando un file scaricato nell’app File su iPhone, questa è soltanto un’anteprima. Apri la versione pubblicata tramite link HTTPS direttamente in Chrome: lì le note e i pulsanti funzionano.</div></div></div><div class="keypad" id="keypad" aria-label="Pulsanti per inserire le note"></div><div class="feedback" id="scale-feedback" role="status" aria-live="polite"></div></div><div class="actions"><button type="button" class="primary" id="check-scale">Controlla risposta</button><button type="button" class="secondary" id="hint-scale">Un aiuto</button><span class="spacer"></span><button type="button" class="secondary new-btn" id="next-scale">Nuovo esercizio ↗</button></div></div>
     <div id="panel-intervals" role="tabpanel" aria-labelledby="tab-intervals" hidden><div class="exercise-body"><h2>Che intervallo è?</h2><p class="desc">Conta dalla prima nota alla seconda, <strong>salendo</strong>. Scegli numero e qualità dell'intervallo.</p><div class="interval-pair" aria-label="Note dell'intervallo"><div class="pitch" id="interval-start">Do<small>4</small></div><span class="arrow" aria-hidden="true">→</span><div class="pitch" id="interval-end">Mi<small>4</small></div></div><div class="answer-row"><div class="answer-col"><label for="interval-number">Numero</label><select id="interval-number"><option value="">Scegli…</option><option value="2">Seconda (2ª)</option><option value="3">Terza (3ª)</option><option value="4">Quarta (4ª)</option><option value="5">Quinta (5ª)</option><option value="6">Sesta (6ª)</option><option value="7">Settima (7ª)</option><option value="8">Ottava (8ª)</option></select></div><div class="answer-col"><label for="interval-quality">Qualità</label><select id="interval-quality"><option value="">Scegli…</option><option value="perfetta">Giusta</option><option value="maggiore">Maggiore</option><option value="minore">Minore</option><option value="aumentata">Aumentata</option><option value="diminuita">Diminuita</option></select></div></div><div class="feedback" id="interval-feedback" role="status" aria-live="polite"></div></div><div class="actions"><button type="button" class="primary" id="check-interval">Controlla risposta</button><button type="button" class="secondary" id="hint-interval">Un aiuto</button><span class="spacer"></span><button type="button" class="secondary new-btn" id="next-interval">Nuovo esercizio ↗</button></div></div>
+
+    <div id="panel-ear" role="tabpanel" aria-labelledby="tab-ear" hidden>
+      <div class="exercise-body">
+        <h2>Riconosci l’intervallo a orecchio</h2>
+        <p class="desc">Ascolta due note consecutive e scegli numero e qualità. Puoi riascoltare tutte le volte che vuoi.</p>
+        <div class="ear-settings"><label for="ear-instrument">Scegli uno strumento
+          <select id="ear-instrument">
+            <option value="piano">🎹 Pianoforte</option><option value="guitar">🎸 Chitarra</option><option value="violin">🎻 Violino</option><option value="flute">🪈 Flauto</option><option value="random">🎲 Casuale ogni esercizio</option><option value="ensemble">🎼 Tutti insieme</option>
+          </select>
+        </label></div>
+        <div class="ear-listen"><span aria-hidden="true" style="font-size:34px">🎧</span>
+          <span class="ear-status" id="ear-status" aria-live="polite" role="status">Premi Ascolta per sentire le due note.</span>
+          <div class="ear-play-row">
+            <button class="primary" type="button" id="ear-play">▶ Ascolta</button>
+            <button class="secondary" type="button" id="ear-repeat">↻ Riascolta</button>
+          </div>
+        </div>
+        <div class="answer-row">
+          <div class="answer-col"><label for="ear-number">Numero</label><select id="ear-number"><option value="">Scegli…</option><option value="2">Seconda</option><option value="3">Terza</option><option value="4">Quarta</option><option value="5">Quinta</option><option value="6">Sesta</option><option value="7">Settima</option><option value="8">Ottava</option></select></div>
+          <div class="answer-col"><label for="ear-quality">Qualità</label><select id="ear-quality"><option value="">Scegli…</option><option value="perfetta">Giusta</option><option value="maggiore">Maggiore</option><option value="minore">Minore</option><option value="aumentata">Aumentata</option><option value="diminuita">Diminuita</option></select></div>
+        </div>
+        <p class="ear-disclaimer">I timbri sono sintetizzati dal tuo dispositivo: imitano gli strumenti, non sono registrazioni reali.</p>
+        <div class="feedback" id="ear-feedback" role="status" aria-live="polite"></div>
+      </div>
+      <div class="actions"><button class="primary" type="button" id="ear-check">Controlla risposta</button><button class="secondary" type="button" id="ear-hint">Un aiuto</button><span class="spacer"></span><button class="secondary new-btn" type="button" id="ear-next">Nuovo intervallo ↗</button></div>
+    </div>
   </section>
   <div class="below"><div class="guide"><b>Livelli:</b> Base = 7 toniche naturali; Intermedia = 11; Avanzata = 15 tonalità tradizionali; Esperto = 6 tonalità teoriche; Personalizzato = scegli tu fra tutte le 21. I pulsanti sono sempre mescolati e le toniche non si ripetono finché non hai completato il giro. Le minori iniziano dal riconoscimento della relativa maggiore, poi puoi lavorare sulla 3ª, 6ª e 7ª. Una scala usa ciascun nome di nota una sola volta. Nell'intervallo contano sia le lettere sia i semitoni: <span id="enharmonic-example">Fa♯ e Sol♭</span> non danno sempre lo stesso nome all'intervallo. I risultati sono salvati solo in questo browser.</div><button type="button" id="reset-stats" class="reset">Azzera statistiche</button></div>
 </main>
@@ -166,7 +199,7 @@ function updateCustomSelection(roots){
   saveCustomRoots();renderCustomPanel();
   scaleDeck=[];scaleDeckLevel='';scale=null;interval=null;minorStage=-1;blockRoot='';
   if(level==='custom'){
-    if(mode==='scales')newScale();else newInterval();
+    if(mode==='scales')newScale();else if(mode==='ear')newEarQuestion();else newInterval();
   }
 }
 const SEMITONES={
@@ -513,21 +546,105 @@ function checkInterval(){
     feedback('interval-feedback','error','Risposta corretta: '+answer+'.',reason,`Conta: ${names} (${interval.n} note). Distanza: ${interval.semitones} ${interval.semitones===1?'semitono':'semitoni'}.`);
   }
 }
+
+/* Ear Training: timbri creati da oscillatori locali, nessun file audio esterno. */
+const EAR_VOICES=['piano','guitar','violin','flute'];
+const EAR_NAMES={piano:'pianoforte',guitar:'chitarra',violin:'violino',flute:'flauto',ensemble:'tutti insieme'};
+const EAR_PARTIALS={piano:[[1,1],[2,.23],[3,.10],[4,.035]],guitar:[[1,1],[2,.48],[3,.20],[4,.12]],violin:[[1,1],[2,.65],[3,.4],[4,.22],[5,.12]],flute:[[1,1],[2,.08],[3,.025]]};
+function loadEarInstrument(){try{const v=localStorage.getItem('palestra-ear-voice-v1');return EAR_VOICES.includes(v)||v==='random'||v==='ensemble'?v:'piano';}catch(e){return 'piano';}}
+let earInstrument=loadEarInstrument(),earVoice='piano',earQuestion=null,earKey='',earGraded=false,earContext=null,earNodes=[];
+function stopEarSound(){for(const n of earNodes){try{n.stop();}catch(e){}}earNodes=[];}
+function currentEarVoice(){return earInstrument==='random'?choose(EAR_VOICES):earInstrument;}
+function newEarQuestion(){
+  stopEarSound();
+  const pool=candidatesForIntervals(level).filter(x=>x.semitones>=1&&x.semitones<=12);
+  const choices=pool.filter(x=>x.start+'|'+x.end+'|'+x.q!==earKey);
+  earQuestion=(choices.length?choose(choices):pool.length?choose(pool):null);
+  earVoice=currentEarVoice();earGraded=false;
+  $('ear-number').value='';$('ear-quality').value='';$('ear-number').className='';$('ear-quality').className='';clearFeedback('ear-feedback');
+  const enabled=!!earQuestion;
+  for(const id of ['ear-play','ear-repeat','ear-check','ear-hint','ear-next'])$(id).disabled=!enabled;
+  if(!enabled){$('ear-status').textContent='Nessun intervallo disponibile: scegli almeno una tonalità.';return;}
+  earKey=earQuestion.start+'|'+earQuestion.end+'|'+earQuestion.q;
+  $('ear-status').textContent='Nuovo intervallo pronto. Tocca Ascolta.';
+  updateCounter();
+}
+function noteFreq(midi){return 440*Math.pow(2,(midi-69)/12);}
+function earTone(ctx,midi,at,duration,voice,ensemble){
+  const volume=ensemble?.048:.145,attack=voice==='violin'?.10:voice==='flute'?.055:voice==='piano'?.012:.008;
+  const master=ctx.createGain();master.gain.setValueAtTime(.0001,at);
+  master.gain.linearRampToValueAtTime(volume,at+attack);
+  if(voice==='piano'||voice==='guitar')master.gain.exponentialRampToValueAtTime(volume*.23,at+duration*.56);
+  else master.gain.setValueAtTime(volume,at+duration*.72);
+  master.gain.exponentialRampToValueAtTime(.0001,at+duration);
+  master.connect(ctx.destination);
+  const parts=EAR_PARTIALS[voice];let remaining=parts.length;
+  for(const [harmonic,amplitude] of parts){
+    const osc=ctx.createOscillator(),gain=ctx.createGain();
+    osc.type='sine';osc.frequency.setValueAtTime(noteFreq(midi)*harmonic,at);
+    gain.gain.value=amplitude;osc.connect(gain);gain.connect(master);
+    osc.onended=()=>{osc.disconnect();gain.disconnect();if(--remaining===0)master.disconnect();};
+    osc.start(at);osc.stop(at+duration+.025);earNodes.push(osc);
+  }
+}
+async function playEar(){
+  if(!earQuestion)return;
+  const Context=window.AudioContext||window.webkitAudioContext;
+  if(!Context){feedback('ear-feedback','error','Audio non disponibile','Il browser non supporta Web Audio.');return;}
+  try{
+    if(!earContext)earContext=new Context();
+    await earContext.resume();
+    stopEarSound();
+    const parsed=noteParse(earQuestion.start);if(!parsed)throw Error('Nota sconosciuta');
+    const first=60+parsed.pitch,at=earContext.currentTime+.07;
+    const voices=earVoice==='ensemble'?EAR_VOICES:[earVoice];
+    for(const voice of voices){
+      earTone(earContext,first,at,.68,voice,voices.length>1);
+      earTone(earContext,first+earQuestion.semitones,at+.88,.72,voice,voices.length>1);
+    }
+    $('ear-status').textContent='Suono: '+EAR_NAMES[earVoice]+'. Puoi riascoltare.';
+  }catch(e){feedback('ear-feedback','error','Suono non riprodotto','Tocca nuovamente Ascolta e verifica il volume del telefono.');}
+}
+function checkEar(){
+  if(!earQuestion)return;
+  const n=Number($('ear-number').value),q=$('ear-quality').value;
+  if(!n||!q){feedback('ear-feedback','info','Risposta incompleta','Scegli numero e qualità. Puoi riascoltare senza limiti.');return;}
+  const nOk=n===earQuestion.n,qOk=q===earQuestion.q,ok=nOk&&qOk;
+  $('ear-number').className=nOk?'correct':'wrong';$('ear-quality').className=qOk?'correct':'wrong';
+  if(!earGraded){record(ok);earGraded=true;}
+  const label=NUMBER_NAMES[earQuestion.n]+' '+QUALITY_NAMES[earQuestion.q];
+  if(ok)feedback('ear-feedback','success','Esatto: '+label+'!','Hai riconosciuto entrambe le caratteristiche.');
+  else feedback('ear-feedback','error','Risposta corretta: '+label+'.','Le note ascoltate erano '+displayNote(earQuestion.start)+' e '+displayNote(earQuestion.end)+'. Riascolta e confrontale.');
+}
+$('ear-instrument').addEventListener('change',e=>{
+  earInstrument=e.target.value;earVoice=currentEarVoice();
+  try{localStorage.setItem('palestra-ear-voice-v1',earInstrument);}catch(err){}
+  $('ear-status').textContent='Strumento cambiato. Tocca Ascolta per sentire l’intervallo.';
+});
+$('ear-play').addEventListener('click',playEar);
+$('ear-repeat').addEventListener('click',playEar);
+$('ear-check').addEventListener('click',checkEar);
+$('ear-next').addEventListener('click',newEarQuestion);
+$('ear-hint').addEventListener('click',()=>feedback('ear-feedback','info','Ascolta la distanza','Prova a cantare mentalmente le note, poi confronta il salto. Riascolta pure quante volte vuoi.'));
+
 function enterMode(m){
   if(m===mode)return;
   mode=m;
   $('tab-scales').setAttribute('aria-selected',String(m==='scales'));
   $('tab-intervals').setAttribute('aria-selected',String(m==='intervals'));
-  $('panel-scales').hidden=m!=='scales';$('panel-intervals').hidden=m!=='intervals';
-  $('exercise-type').textContent=m==='scales'?'Scala '+SCALE_LABELS[activePatternKind()]:'Riconosci l’intervallo';
-  if(m==='scales'){if(!scale)newScale();}else{if(!interval)newInterval();}
+  $('tab-ear').setAttribute('aria-selected',String(m==='ear'));
+  $('panel-scales').hidden=m!=='scales';$('panel-intervals').hidden=m!=='intervals';$('panel-ear').hidden=m!=='ear';
+  if(m!=='ear')stopEarSound();
+  $('exercise-type').textContent=m==='scales'?'Scala '+SCALE_LABELS[activePatternKind()]:m==='ear'?'Ear Training':'Riconosci l’intervallo';
+  if(m==='scales'){if(!scale)newScale();}else if(m==='intervals'){if(!interval)newInterval();}else{if(!earQuestion)newEarQuestion();}
 }
 $('tab-scales').addEventListener('click',()=>enterMode('scales'));
 $('tab-intervals').addEventListener('click',()=>enterMode('intervals'));
+$('tab-ear').addEventListener('click',()=>enterMode('ear'));
 $('difficulty').addEventListener('change',e=>{
   level=e.target.value;scale=null;interval=null;scaleDeck=[];scaleDeckLevel='';minorStage=-1;blockRoot='';
   renderCustomPanel();
-  if(mode==='scales')newScale();else newInterval();
+  if(mode==='scales')newScale();else if(mode==='ear')newEarQuestion();else newInterval();
 });
 $('custom-groups').addEventListener('change',e=>{
   const input=e.target.closest('input[data-root]');if(!input)return;
@@ -582,7 +699,7 @@ $('keypad').addEventListener('click',e=>{
 $('reset-stats').addEventListener('click',()=>{
   if(confirm('Vuoi davvero azzerare le statistiche?')){stats={attempts:0,correct:0,streak:0};save();}
 });
-initCustomPanel();renderStats();$('notation').value=notation;$('scale-kind').value=scaleKind;newScale();$('enharmonic-example').textContent=displayNote('Fa♯')+' e '+displayNote('Sol♭');
+initCustomPanel();renderStats();$('notation').value=notation;$('scale-kind').value=scaleKind;$('ear-instrument').value=earInstrument;newScale();$('enharmonic-example').textContent=displayNote('Fa♯')+' e '+displayNote('Sol♭');
 })();
 </script>
 <script>
