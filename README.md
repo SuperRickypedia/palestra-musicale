@@ -1,6 +1,6 @@
 # Palestra Musicale 🎵
 
-Applicazione leggera e gratuita per esercitarsi con scale maggiori e intervalli, su smartphone e computer.
+Applicazione leggera e gratuita per esercitarsi con scale maggiori, scale minori, intervalli ed ear training su smartphone e computer.
 
 ## Livelli delle scale
 - **Base:** 7 toniche naturali.
@@ -28,7 +28,7 @@ https://superrickypedia.github.io/palestra-musicale/
 - `sw.js` — supporto alla cache offline quando pubblicato su HTTPS
 - `icon.svg` — icona
 
-## Scale minori (ramo di sviluppo `feature/scale-minori`)
+## Scale minori
 
 La nuova modalità **Minori · percorso completo (3)** guida un blocco di esercizi su un'unica tonica:
 
@@ -41,4 +41,9 @@ Nella minore naturale, rispetto alla **maggiore parallela** (stessa tonica), ter
 
 Le tre forme possono anche essere esercitate separatamente. La selezione delle toniche e le alterazioni doppie restano supportate. Gli esercizi sono completamente interattivi e senza tastiera virtuale.
 
-**Nota:** questi cambiamenti sono nel ramo di sviluppo, non ancora pubblicati sul sito.
+## Ear Training
+- Intervalli melodici ascoltabili e riascoltabili con numero e qualità da riconoscere.
+- Timbri sintetizzati in locale: pianoforte, chitarra, violino e flauto; modalità casuale o ensemble.
+- Volume interno regolabile. Nessun file audio esterno e nessun server necessario.
+
+Tutte le funzionalità sono disponibili all'indirizzo pubblico del sito sopra indicato.
