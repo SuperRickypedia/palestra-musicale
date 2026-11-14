@@ -655,7 +655,10 @@ function earTone(ctx,midi,at,duration,voice,ensemble){
   if(voice==='violin')earNoise(ctx,at,Math.min(duration,.42),.011,2500,active);
   if(voice==='flute')earNoise(ctx,at,Math.min(duration,.35),.013,3400,active);
   // Scollega dopo che tutte le componenti hanno terminato.
-  const last=earNodes[earNodes.length-1];
+  // Il rumore di attacco termina prima della nota: attendi la fine delle oscillazioni
+  // prima di scollegare l'inviluppo generale.
+  const noteOsc=earNodes.filter(node=>node instanceof OscillatorNode).slice(-partials.length);
+  const last=noteOsc[noteOsc.length-1];
   if(last)last.addEventListener('ended',()=>{try{active.disconnect();}catch(e){}},{once:true});
 }
 async function playEar(){
