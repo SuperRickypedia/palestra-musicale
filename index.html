@@ -67,6 +67,7 @@
     .ear-status{font-size:14px;color:var(--muted);line-height:1.5;max-width:440px}
     .ear-play-row{display:flex;justify-content:center;flex-wrap:wrap;gap:10px}.ear-play-row button{min-height:48px;min-width:130px}
     .ear-disclaimer{font-size:12px;line-height:1.5;color:var(--muted);margin:14px 0 0}
+.ear-volume-control{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:2px 0 12px;color:var(--muted);font-size:13px;font-weight:800}.ear-volume-control input{flex:1;min-width:130px;accent-color:var(--green);min-height:40px}.ear-volume-control output{min-width:42px;text-align:right;color:var(--ink)}
 </style>
 </head>
 <body>
@@ -96,7 +97,7 @@
             <option value="piano">🎹 Pianoforte</option><option value="guitar">🎸 Chitarra</option><option value="violin">🎻 Violino</option><option value="flute">🪈 Flauto</option><option value="random">🎲 Casuale ogni esercizio</option><option value="ensemble">🎼 Tutti insieme</option>
           </select>
         </label></div>
-        <div class="ear-listen"><span aria-hidden="true" style="font-size:34px">🎧</span>
+        <div class="ear-volume-control"><label for="ear-volume">Volume del suono</label><input type="range" id="ear-volume" min="20" max="100" step="5" value="75"><output id="ear-volume-output" for="ear-volume">75%</output></div><div class="ear-listen"><span aria-hidden="true" style="font-size:34px">🎧</span>
           <span class="ear-status" id="ear-status" aria-live="polite" role="status">Premi Ascolta per sentire le due note.</span>
           <div class="ear-play-row">
             <button class="primary" type="button" id="ear-play">▶ Ascolta</button>
@@ -550,7 +551,6 @@ function checkInterval(){
 /* Ear Training: timbri creati da oscillatori locali, nessun file audio esterno. */
 const EAR_VOICES=['piano','guitar','violin','flute'];
 const EAR_NAMES={piano:'pianoforte',guitar:'chitarra',violin:'violino',flute:'flauto',ensemble:'tutti insieme'};
-const EAR_PARTIALS={piano:[[1,1],[2,.23],[3,.10],[4,.035]],guitar:[[1,1],[2,.48],[3,.20],[4,.12]],violin:[[1,1],[2,.65],[3,.4],[4,.22],[5,.12]],flute:[[1,1],[2,.08],[3,.025]]};
 function loadEarInstrument(){try{const v=localStorage.getItem('palestra-ear-voice-v1');return EAR_VOICES.includes(v)||v==='random'||v==='ensemble'?v:'piano';}catch(e){return 'piano';}}
 let earInstrument=loadEarInstrument(),earVoice='piano',earQuestion=null,earKey='',earGraded=false,earContext=null,earNodes=[];
 function stopEarSound(){for(const n of earNodes){try{n.stop();}catch(e){}}earNodes=[];}
@@ -570,22 +570,93 @@ function newEarQuestion(){
   updateCounter();
 }
 function noteFreq(midi){return 440*Math.pow(2,(midi-69)/12);}
+
+/* Timbri arricchiti: armoniche indipendenti, decadimenti, rumore di attacco,
+   vibrato controllato, compressione e volume locale. */
+const EAR_PARTIALS={
+ piano:[1,.42,.22,.12,.06],
+ guitar:[1,.70,.41,.25,.13,.07],
+ violin:[1,.85,.58,.37,.23,.12],
+ flute:[1,.115,.03]
+};
+function earVolumeFromStorage(){
+  try{const v=Number(localStorage.getItem('palestra-ear-volume-v2'));return Number.isFinite(v)&&v>=20&&v<=100?v:75;}catch(e){return 75;}
+}
+let earVolume=earVolumeFromStorage(),earMaster=null;
+function initEarMaster(ctx){
+  if(earMaster)return;
+  const compressor=ctx.createDynamicsCompressor();
+  compressor.threshold.value=-21;compressor.knee.value=12;
+  compressor.ratio.value=6;compressor.attack.value=.005;compressor.release.value=.18;
+  earMaster=ctx.createGain();earMaster.gain.value=.9*earVolume/100;
+  earMaster.connect(compressor);compressor.connect(ctx.destination);
+}
+function earNoise(ctx,at,fade,level,filterHz,destination){
+  const len=Math.round(ctx.sampleRate*.16);
+  const buffer=ctx.createBuffer(1,len,ctx.sampleRate),data=buffer.getChannelData(0);
+  for(let i=0;i<len;i++)data[i]=Math.random()*2-1;
+  const src=ctx.createBufferSource(),filter=ctx.createBiquadFilter(),gain=ctx.createGain();
+  src.buffer=buffer;src.loop=true;filter.type='highpass';filter.frequency.value=filterHz;
+  gain.gain.setValueAtTime(.00001,at);
+  gain.gain.linearRampToValueAtTime(level,at+.005);
+  gain.gain.exponentialRampToValueAtTime(.00001,at+fade);
+  src.connect(filter);filter.connect(gain);gain.connect(destination);
+  src.onended=()=>{try{src.disconnect();filter.disconnect();gain.disconnect();}catch(e){}};
+  src.start(at);src.stop(at+fade+.008);earNodes.push(src);
+}
 function earTone(ctx,midi,at,duration,voice,ensemble){
-  const volume=ensemble?.048:.145,attack=voice==='violin'?.10:voice==='flute'?.055:voice==='piano'?.012:.008;
-  const master=ctx.createGain();master.gain.setValueAtTime(.0001,at);
-  master.gain.linearRampToValueAtTime(volume,at+attack);
-  if(voice==='piano'||voice==='guitar')master.gain.exponentialRampToValueAtTime(volume*.23,at+duration*.56);
-  else master.gain.setValueAtTime(volume,at+duration*.72);
-  master.gain.exponentialRampToValueAtTime(.0001,at+duration);
-  master.connect(ctx.destination);
-  const parts=EAR_PARTIALS[voice];let remaining=parts.length;
-  for(const [harmonic,amplitude] of parts){
-    const osc=ctx.createOscillator(),gain=ctx.createGain();
-    osc.type='sine';osc.frequency.setValueAtTime(noteFreq(midi)*harmonic,at);
-    gain.gain.value=amplitude;osc.connect(gain);gain.connect(master);
-    osc.onended=()=>{osc.disconnect();gain.disconnect();if(--remaining===0)master.disconnect();};
-    osc.start(at);osc.stop(at+duration+.025);earNodes.push(osc);
+  initEarMaster(ctx);
+  const base=noteFreq(midi),partials=EAR_PARTIALS[voice];
+  const active=ctx.createGain(),peak=(ensemble?.055:.22);
+  active.connect(earMaster);
+  const attack=voice==='violin'?.11:voice==='flute'?.065:voice==='piano'?.006:.003;
+  active.gain.setValueAtTime(.00001,at);
+  active.gain.linearRampToValueAtTime(peak,at+attack);
+  if(voice==='piano'){
+    active.gain.exponentialRampToValueAtTime(peak*.38,at+duration*.50);
+  }else if(voice==='guitar'){
+    active.gain.exponentialRampToValueAtTime(peak*.18,at+duration*.48);
+  }else{
+    active.gain.setValueAtTime(peak*.82,at+duration*.72);
   }
+  const release=voice==='piano'?.18:voice==='guitar'?.065:.13;
+  active.gain.exponentialRampToValueAtTime(.00001,at+duration+release);
+  let remaining=0;
+  for(let i=0;i<partials.length;i++){
+    const osc=ctx.createOscillator(),amp=ctx.createGain(),harmonic=i+1;
+    osc.type='sine';
+    const stretch=voice==='piano'?1+.00006*harmonic*harmonic:1;
+    osc.frequency.setValueAtTime(base*harmonic*stretch,at);
+    if(voice==='piano'&&i===0){osc.detune.setValueAtTime(1.4,at);osc.detune.linearRampToValueAtTime(0,at+.25);}
+    const weight=partials[i];
+    amp.gain.setValueAtTime(weight,at);
+    if(voice==='guitar'){
+      amp.gain.exponentialRampToValueAtTime(Math.max(.0001,weight*(i===0?.34:.06)),at+duration*.6);
+    }else if(voice==='piano'&&i>0){
+      amp.gain.exponentialRampToValueAtTime(Math.max(.0001,weight*.2),at+duration*.75);
+    }
+    let vibrato=null,depth=null;
+    if(voice==='violin'&&i===0){
+      vibrato=ctx.createOscillator();depth=ctx.createGain();
+      vibrato.frequency.value=5.4;
+      depth.gain.setValueAtTime(0,at);
+      depth.gain.linearRampToValueAtTime(6,at+.22);
+      vibrato.connect(depth);depth.connect(osc.detune);
+      vibrato.start(at);vibrato.stop(at+duration+release+.01);
+      earNodes.push(vibrato);
+    }
+    osc.connect(amp);amp.connect(active);
+    remaining++;
+    osc.onended=()=>{try{osc.disconnect();amp.disconnect();if(vibrato)vibrato.disconnect();if(depth)depth.disconnect();}catch(e){}};
+    osc.start(at);osc.stop(at+duration+release+.02);earNodes.push(osc);
+  }
+  if(voice==='piano')earNoise(ctx,at,.035,.045,1900,active);
+  if(voice==='guitar')earNoise(ctx,at,.055,.095,1350,active);
+  if(voice==='violin')earNoise(ctx,at,Math.min(duration,.42),.011,2500,active);
+  if(voice==='flute')earNoise(ctx,at,Math.min(duration,.35),.013,3400,active);
+  // Scollega dopo che tutte le componenti hanno terminato.
+  const last=earNodes[earNodes.length-1];
+  if(last)last.addEventListener('ended',()=>{try{active.disconnect();}catch(e){}},{once:true});
 }
 async function playEar(){
   if(!earQuestion)return;
@@ -621,6 +692,7 @@ $('ear-instrument').addEventListener('change',e=>{
   try{localStorage.setItem('palestra-ear-voice-v1',earInstrument);}catch(err){}
   $('ear-status').textContent='Strumento cambiato. Tocca Ascolta per sentire l’intervallo.';
 });
+$('ear-volume').addEventListener('input',e=>{earVolume=Number(e.target.value);$('ear-volume-output').textContent=earVolume+'%';if(earMaster&&earContext)earMaster.gain.setTargetAtTime(.9*earVolume/100,earContext.currentTime,.02);try{localStorage.setItem('palestra-ear-volume-v2',String(earVolume));}catch(err){}});
 $('ear-play').addEventListener('click',playEar);
 $('ear-repeat').addEventListener('click',playEar);
 $('ear-check').addEventListener('click',checkEar);
@@ -699,7 +771,7 @@ $('keypad').addEventListener('click',e=>{
 $('reset-stats').addEventListener('click',()=>{
   if(confirm('Vuoi davvero azzerare le statistiche?')){stats={attempts:0,correct:0,streak:0};save();}
 });
-initCustomPanel();renderStats();$('notation').value=notation;$('scale-kind').value=scaleKind;$('ear-instrument').value=earInstrument;newScale();$('enharmonic-example').textContent=displayNote('Fa♯')+' e '+displayNote('Sol♭');
+initCustomPanel();renderStats();$('notation').value=notation;$('scale-kind').value=scaleKind;$('ear-instrument').value=earInstrument;$('ear-volume').value=String(earVolume);$('ear-volume-output').textContent=earVolume+'%';newScale();$('enharmonic-example').textContent=displayNote('Fa♯')+' e '+displayNote('Sol♭');
 })();
 </script>
 <script>
